@@ -1,7 +1,6 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, redirect, url_for, request
-from flask_bootstrap import Bootstrap, Bootstrap4
+from flask_bootstrap import Bootstrap4
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField
 from wtforms.validators import InputRequired, Length
@@ -26,13 +25,10 @@ class LoginForm(FlaskForm):
 def login():
     form = LoginForm()
 
-    if form.is_submitted():
-        print("kokot")
-
+    if form.validate_on_submit():
+        return '<h1>'+ 'jebko' +'</h1>'
 
     return render_template('login.html', form=form)
-
-
 
 
 if __name__ == '__main__':
