@@ -1,5 +1,8 @@
 from flask_login import UserMixin
-from app import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
 
 
 '''Table for users'''
@@ -12,3 +15,4 @@ class User(db.Model, UserMixin):
 '''Table for messages'''
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    

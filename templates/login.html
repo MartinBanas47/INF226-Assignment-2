@@ -3,6 +3,7 @@
 
 {% block content %}
     <br>
+    <h2 align="center">Login</h2>
     <div class="container">
    <form method="POST" action="/login">
        {{ form.hidden_tag() }}
@@ -11,21 +12,11 @@
        {{form.password.label(class="form-label")}}
        {{form.password(class="form-control")}}
        <br>
-{#      <!-- Username input -->#}
-{#      <div class="form-outline mb-4">#}
-{#        <input type="text" id="formUsername" class="form-control" />#}
-{#        <label class="form-label" for="formUsername">Username</label>#}
-{#      </div>#}
-{##}
-{#      <!-- Password input -->#}
-{#      <div class="form-outline mb-4">#}
-{#        <input type="password" id="formPassword" class="form-control" />#}
-{#        <label class="form-label" for="formPassword">Password</label>#}
-{#      </div>#}
-
 
       <!-- Submit button -->
       <button type="submit" class="btn btn-dark btn-block mb-4">Sign in</button>
+       <br>
+       <p align="center">{{ mess }}</p>
 
 
 </form>
