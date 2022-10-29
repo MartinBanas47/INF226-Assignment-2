@@ -97,14 +97,15 @@ def createMessage():
 @app.route('/messages')
 @login_required
 def messages():
-    # messages_db = db.query(User.username, User.id, Message).join(Message, User.id == Message.sender).filter(Message.receiver== current_user.id).all()
-    messages_db = Message.query.filter_by(receiver=current_user.id).all()
+    messages_db = User.query\
+        .join(Message, User.id == Message.sender).add_columns(User.id, User.username,Message.id,Message.date, Message.message, Message.receiver)\
+        .filter_by(receiver=current_user.id).\
+        all()
     messages_list = []
     for message in messages_db:
         messages_list.append(MessageDto(
             message_id=message.id,
-            sender_id=message.sender,
-            sender_username=User.query.filter_by(id=message.sender).first().username,
+            sender_username=message.username,
             timestamp=message.date,
             message=message.message
         ))
