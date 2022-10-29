@@ -2,28 +2,25 @@
 
 
 {% block content %}
-    <br>
-    <h2 align="center">Sign up</h2>
-    <div class="container">
-   <form method="POST" action="/register">
-       {{ form.hidden_tag() }}
-       {{ form.username.label(class="form-label") }}
-       {{ form.username(class="form-control") }}
-       {{form.password.label(class="form-label")}}
-       {{form.password(class="form-control")}}
-       <br>
+<br>
+<h2 align="center">Sign up</h2>
+<div class="container">
+    <form method="POST" action="/register">
+        {{ form.hidden_tag() }}
+        {{ form.username.label(class="form-label") }}
+        {{ form.username(class="form-control") }}
+        {{form.password.label(class="form-label")}}
+        {{form.password(class="form-control")}}
+        <br>
 
 
-      <!-- Submit button -->
-      <button type="submit" class="btn btn-dark btn-block mb-4">Sign up</button>
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-dark btn-block mb-4">Sign up</button>
 
 
-</form>
+    </form>
 
 
-
-
-
-    </div>
+</div>
 
 {% endblock %}

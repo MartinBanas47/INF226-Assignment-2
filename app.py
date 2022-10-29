@@ -74,9 +74,12 @@ def register():
 
     return render_template('register.html', form=form)
 
+
 class CreateMessageForm(FlaskForm):
     receiver: StringField = StringField('Receiver', validators=[InputRequired(), Length(max=20)])
     message: TextAreaField = TextAreaField('Message', validators=[InputRequired(), Length(max=200)])
+
+
 @app.route('/new', methods=['GET', 'POST'])
 def createMessage():
     form = CreateMessageForm()
@@ -90,17 +93,18 @@ def createMessage():
         db.session.commit()
     return render_template('createMessage.html', form=form)
 
+
 @app.route('/messages')
 @login_required
 def messages():
-    #messages_db = db.query(User.username, User.id, Message).join(Message, User.id == Message.sender).filter(Message.receiver== current_user.id).all()
+    # messages_db = db.query(User.username, User.id, Message).join(Message, User.id == Message.sender).filter(Message.receiver== current_user.id).all()
     messages_db = Message.query.filter_by(receiver=current_user.id).all()
     messages_list = []
     for message in messages_db:
         messages_list.append(MessageDto(
             message_id=message.id,
             sender_id=message.sender,
-            sender_username=User.query.filter_by(id=message.sender).first().username    ,
+            sender_username=User.query.filter_by(id=message.sender).first().username,
             timestamp=message.date,
             message=message.message
         ))

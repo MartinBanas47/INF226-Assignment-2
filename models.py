@@ -5,6 +5,8 @@ from sqlalchemy import ForeignKey
 db = SQLAlchemy()
 
 '''Table for users'''
+
+
 class User(db.Model, UserMixin):
     __tablename__ = "User"
     id = db.Column(db.Integer, primary_key=True)
@@ -13,6 +15,8 @@ class User(db.Model, UserMixin):
 
 
 '''Table for messages'''
+
+
 class Message(db.Model):
     __tablename__ = "Message"
     id = db.Column(db.Integer, primary_key=True)
