@@ -1,6 +1,6 @@
 import datetime
 
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, abort
 from flask_bootstrap import Bootstrap4
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField
@@ -115,6 +115,22 @@ def messages():
         ))
     return render_template('messages.html', messages=messages_list, len=len(messages_list))
 
+@app.route('/message/<int:message_id>')
+@login_required
+def message(message_id):
+    message_db = User.query\
+        .join(Message, User.id == Message.sender).add_columns(User.username, Message.id, Message.date, Message.message, Message.receiver)\
+        .filter_by(receiver=current_user.id)\
+        .first()
+    if message_db.receiver != message_id:
+        abort(404)
+    message = MessageDto(
+            message_id=message_db.id,
+            sender_username=message_db.username,
+            timestamp=message_db.date,
+            message=message_db.message
+        )
+    return render_template('message.html', message=message)
 
 @app.route('/logout')
 @login_required

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 align="center">Messages</h2>
+<div class="container">
+    <div class="card">
+        <h5 class="card-header">
+            {{message.message_id}}. <small style=" position: absolute; left: 50%; margin-left: -1em">{{message.sender_username}}</small>
+            <small class="float-right">{{message.timestamp}}</small>
+        </h5>
+        <div class="card-body">
+            {{message.message}}
+        </div>
+    </div>
+</div>
+{% endblock %}
