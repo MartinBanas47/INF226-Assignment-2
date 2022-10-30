@@ -81,16 +81,20 @@ class CreateMessageForm(FlaskForm):
 
 
 @app.route('/new', methods=['GET', 'POST'])
+@login_required
 def createMessage():
     form = CreateMessageForm()
     if form.is_submitted():
-        receiver = User.query.filter_by(username=form.receiver.data).first()
-        new_message = Message(receiver=receiver.id,
-                              message=form.message.data,
-                              sender=current_user.id,
-                              date=datetime.date.today())
-        db.session.add(new_message)
-        db.session.commit()
+        try:
+            receiver = User.query.filter_by(username=form.receiver.data).first()
+            new_message = Message(receiver=receiver.id,
+                                  message=form.message.data,
+                                  sender=current_user.id,
+                                  date=datetime.date.today())
+            db.session.add(new_message)
+            db.session.commit()
+            return render_template('createMessage.html', form=CreateMessageForm(formdata=None), error_messsage='Message was sent')
+        except AttributeError: return render_template('createMessage.html', form=form, error_messsage='Something went wrong')
     return render_template('createMessage.html', form=form)
 
 
@@ -98,7 +102,7 @@ def createMessage():
 @login_required
 def messages():
     messages_db = User.query\
-        .join(Message, User.id == Message.sender).add_columns(User.id, User.username,Message.id,Message.date, Message.message, Message.receiver)\
+        .join(Message, User.id == Message.sender).add_columns(User.id, User.username, Message.id, Message.date, Message.message, Message.receiver)\
         .filter_by(receiver=current_user.id).\
         all()
     messages_list = []
