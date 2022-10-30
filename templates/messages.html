@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 align="center">Messages</h2>
+{%for i in range(0, len)%}
+<div class="container">
+    <div class="card">
+        <h5 class="card-header">
+            {{messages[i].message_id}}. <small style=" position: absolute; left: 50%; margin-left: -1em">{{messages[i].sender_username}}</small>
+            <small class="float-right">{{messages[i].timestamp}}</small>
+        </h5>
+        <div class="card-body">
+                {{messages[i].message}}
+        </div>
+    </div>
+</div>
+
+
+{%endfor%}
+<div class="container">
+
+</div>
+{% endblock %}

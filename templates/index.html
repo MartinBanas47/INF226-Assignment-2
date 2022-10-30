@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>
+<div class="container">
+    <div class="jumbotron">
+
+        <h1 class="display-4">Welcome!</h1>
+        <p class="lead">Something about the project</p>
+        <hr class="my-4">
+        <p>Martin Banas, Filip Brat</p>
+        {% if not current_user.is_authenticated %}
+        <p class="lead">
+            <a class="btn btn-dark btn-lg" href="{{ url_for('register') }}" role="button">Register</a>
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}

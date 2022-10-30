@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 align="center">Create message</h2>
+<div class="container">
+    <form method="POST" action="/new">
+        {{ form.receiver.label(class="form-label") }}
+        {{ form.receiver(class="form-control") }}
+        {{ form.message.label(class="form-label") }}
+        {{ form.message(class="form-control") }}
+        <br>
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-dark btn-block mb-4">Send message</button>
+        <p align="center">{{ error_messsage }}</p>
+    </form>
+</div>
+{% endblock %}
