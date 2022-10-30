@@ -120,9 +120,9 @@ def messages():
 def message(message_id):
     message_db = User.query\
         .join(Message, User.id == Message.sender).add_columns(User.username, Message.id, Message.date, Message.message, Message.receiver)\
-        .filter_by(receiver=current_user.id)\
+        .filter_by(id=message_id)\
         .first()
-    if message_db.receiver != message_id:
+    if message_db.receiver != current_user.id:
         abort(404)
     message = MessageDto(
             message_id=message_db.id,
