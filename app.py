@@ -9,7 +9,7 @@ from Dto.MessageDto import MessageDto
 from Forms.CreateMessageForm import CreateMessageForm
 from Forms.LoginForm import LoginForm
 from Forms.RegisterForm import RegisterForm
-from models import User, Message
+from models import User, Message, Participant
 from models import db
 
 app = Flask(__name__)
@@ -74,11 +74,14 @@ def createMessage():
     if form.is_submitted():
         try:
             receiver = User.query.filter_by(username=form.receiver.data).first()
-            new_message = Message(receiver=receiver.id,
-                                  message=form.message.data,
-                                  sender=current_user.id,
+            new_message = Message(message=form.message.data,
                                   date=datetime.date.today())
             db.session.add(new_message)
+            db.session.flush()
+            new_participants = Participant(senderId=current_user.id,
+                                           receiverId=receiver.id,
+                                           messageId=new_message.id)
+            db.session.add(new_participants)
             db.session.commit()
             return render_template('createMessage.html', form=CreateMessageForm(formdata=None),
                                    error_messsage='Message was sent')
