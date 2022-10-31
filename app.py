@@ -1,4 +1,5 @@
 import datetime
+import bcrypt
 
 from flask import Flask, render_template, redirect, url_for, request, abort
 from flask_bootstrap import Bootstrap4
@@ -46,7 +47,8 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
-            if check_password_hash(user.password, form.password.data):
+            checking_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), user.salt)
+            if checking_password == user.password:
                 login_user(user)
                 return redirect(url_for('messages'))
         return render_template('login.html', form=form, mess='Something failed')
@@ -64,8 +66,9 @@ def register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        hashed_password = generate_password_hash(form.password.data, method='sha256')
-        new_user = User(username=form.username.data, password=hashed_password)
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), salt)
+        new_user = User(username=form.username.data, password=hashed_password, salt=salt)
         db.session.add(new_user)
         db.session.commit()
         user = User.query.filter_by(username=form.username.data).first()
