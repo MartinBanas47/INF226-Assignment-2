@@ -1,10 +1,9 @@
 import datetime
-import bcrypt
 
+import bcrypt
 from flask import Flask, render_template, redirect, url_for, abort
 from flask_bootstrap import Bootstrap4
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-from werkzeug.security import check_password_hash
 
 from Dto.MessageDto import MessageDto
 from Forms.CreateMessageForm import CreateMessageForm
