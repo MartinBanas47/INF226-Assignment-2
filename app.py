@@ -93,31 +93,33 @@ def createMessage():
 @app.route('/messages')
 @login_required
 def messages():
-    messages_db = User.query \
-        .join(Message, User.id == Message.sender).add_columns(User.id, User.username, Message.id, Message.date,
-                                                              Message.message, Message.receiver) \
-        .filter_by(receiver=current_user.id). \
-        all()
-    messages_list = []
-    for message in messages_db:
-        messages_list.append(MessageDto(
-            message_id=message.id,
-            sender_username=message.username,
-            timestamp=message.date,
-            message=message.message
-        ))
-    return render_template('messages.html', messages=messages_list, len=len(messages_list))
+    try:
+        messages_db = Participant.query.filter_by(
+            receiverId=current_user.id) \
+            .join(Message, Participant.messageId == Message.id).join(User, User.id == Participant.senderId)\
+            .add_columns(Participant.receiverId,User.username,Message.id, Message.message, Message.date).all()
+        messages_list = []
+        for message in messages_db:
+            messages_list.append(MessageDto(
+                message_id=message.id,
+                sender_username=message.username,
+                timestamp=message.date,
+                message=message.message
+            ))
+
+        return render_template('messages.html', messageexists=True, messages=messages_list, len=len(messages_list))
+    except AttributeError:
+         return render_template('messages.html', messageexists=False)
 
 
 @app.route('/message/<int:message_id>')
 @login_required
 def message(message_id):
-    message_db = User.query \
-        .join(Message, User.id == Message.sender).add_columns(User.username, Message.id, Message.date, Message.message,
-                                                              Message.receiver) \
-        .filter_by(id=message_id) \
-        .first()
-    if message_db.receiver != current_user.id:
+    message_db = Message.query.filter_by(id=message_id).join(Participant, Participant.messageId == Message.id).join(
+        User, User.id == Participant.senderId).add_columns(Participant.receiverId,User.username,Message.id, Message.message, Message.date).first()
+    print(message_db)
+
+    if message_db.receiverId != current_user.id:
         abort(404)
     message = MessageDto(
         message_id=message_db.id,
@@ -136,4 +138,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
