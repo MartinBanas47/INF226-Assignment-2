@@ -9,6 +9,7 @@ from Dto.MessageDto import MessageDto
 from Forms.CreateMessageForm import CreateMessageForm
 from Forms.LoginForm import LoginForm
 from Forms.RegisterForm import RegisterForm
+from Forms.ReplyForm import CreateReplyForm
 from models import User, Message, Participant
 from models import db
 
@@ -111,7 +112,7 @@ def createMessage():
     return render_template('createMessage.html', form=form)
 
 
-@app.route('/messages')
+@app.route('/messages', methods=['GET', 'POST'])
 @login_required
 def messages():
     try:
@@ -133,11 +134,14 @@ def messages():
          return render_template('messages.html', messageexists=False)
 
 
-@app.route('/message/<int:message_id>')
+
+
+@app.route('/message/<int:message_id>', methods=['GET', 'POST'])
 @login_required
 def message(message_id):
+    form = CreateReplyForm()
     message_db = Message.query.filter_by(id=message_id).join(Participant, Participant.messageId == Message.id).join(
-        User, User.id == Participant.senderId).add_columns(Participant.receiverId,User.username,Message.id, Message.message, Message.date).first()
+        User, User.id == Participant.senderId).add_columns(Participant.receiverId,Participant.senderId,User.username,Message.id, Message.message, Message.date).first()
     print(message_db)
 
     if message_db.receiverId != current_user.id:
@@ -148,7 +152,25 @@ def message(message_id):
         timestamp=message_db.date,
         message=message_db.message
     )
-    return render_template('message.html', message=message)
+
+    if form.is_submitted():
+        try:
+                new_message = Message(message=form.message.data,
+                                      date=datetime.date.today(),
+                                      replyToId=message_id
+                                      )
+                db.session.add(new_message)
+                db.session.flush()
+                new_participants = Participant(senderId=current_user.id,
+                                               receiverId=message_db.senderId,
+                                               messageId=new_message.id)
+                db.session.add(new_participants)
+                db.session.commit()
+                return redirect(url_for('messages'))
+        except AttributeError:
+            return render_template('message.html', meessage=message, form=form, error_messsage='Something went wrong')
+
+    return render_template('message.html', message=message, form=form)
 
 
 @app.route('/logout')

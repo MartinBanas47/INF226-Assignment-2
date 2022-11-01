@@ -23,6 +23,7 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(200), nullable=True)
     date = db.Column(db.Date)
+    replyToId = db.Column(db.Integer, db.ForeignKey("Message.id"), nullable=True)
 
 
 '''Table for receivers and senders'''

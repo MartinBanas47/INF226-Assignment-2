@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2 align="center">Message</h2>
-<div class="container">
+<div class="container ">
     <div class="card">
         <h5 class="card-header">
              <small style=" position: absolute; left: 50%; margin-left: -1em">{{message.sender_username}}</small>
@@ -11,5 +11,12 @@
             {{message.message}}
         </div>
     </div>
+    <form method="POST">
+    <div style="padding-top: 45%">
+        {{ form.message(class="form-control") }}
+        <button type="submit" class="btn btn-dark btn-block mb-4">Reply</button>
+        <p align="center">{{ error_messsage }}</p>
+    </div>
+        </form>
 </div>
 {% endblock %}
