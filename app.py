@@ -76,22 +76,23 @@ def createMessage():
         try:
             if (';' in form.receiver.data):
                 receivers = form.receiver.data.split(';')
-                for x in receivers:
-                    try:
-                        receiver = User.query.filter_by(username=x).first()
+
+                try:
+
                         new_message = Message(message=form.message.data,
                                               date=datetime.date.today())
                         db.session.add(new_message)
                         db.session.flush()
-                        new_participants = Participant(senderId=current_user.id,
+                        for x in receivers:
+                            receiver = User.query.filter_by(username=x).first()
+                            new_participants = Participant(senderId=current_user.id,
                                                        receiverId=receiver.id,
                                                        messageId=new_message.id)
-                        db.session.add(new_participants)
-                        db.session.commit()
+                            db.session.add(new_participants)
+                            db.session.commit()
 
-
-                    except AttributeError:
-                        pass
+                except AttributeError:
+                                pass
                 return render_template('createMessage.html', form=CreateMessageForm(formdata=None),
                                        error_messsage='Message was sent')
             else:
@@ -144,7 +145,7 @@ def message(message_id):
         User, User.id == Participant.senderId).add_columns(Participant.receiverId,Participant.senderId,User.username,Message.id, Message.message, Message.date).first()
     print(message_db)
 
-    if message_db.receiverId != current_user.id:
+    if (message_db.receiverId != current_user.id) and (message_db.senderId != current_user.id):
         abort(404)
     message = MessageDto(
         message_id=message_db.id,
@@ -161,10 +162,23 @@ def message(message_id):
                                       )
                 db.session.add(new_message)
                 db.session.flush()
+                group_query = Participant.query.filter_by(messageId=message_id).filter(
+                    Participant.senderId != current_user.id).add_columns(Participant.receiverId, Participant.senderId).all()
+                sender_id = None
+                for x in group_query:
+                    if x.senderId != current_user.id:
+                        sender_id = x.senderId
+                    if x.receiverId != current_user.id:
+                        new_participants = Participant(senderId=current_user.id,
+                                                   receiverId=x.receiverId,
+                                                   messageId=new_message.id)
+                        db.session.add(new_participants)
+                        db.session.flush()
                 new_participants = Participant(senderId=current_user.id,
-                                               receiverId=message_db.senderId,
+                                               receiverId=sender_id,
                                                messageId=new_message.id)
                 db.session.add(new_participants)
+                db.session.flush()
                 db.session.commit()
                 return redirect(url_for('messages'))
         except AttributeError:
