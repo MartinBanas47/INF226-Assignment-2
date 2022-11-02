@@ -6,6 +6,7 @@ from flask import Flask, render_template, redirect, url_for, abort
 from flask_bootstrap import Bootstrap4
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy.exc import IntegrityError
+from logging import FileHandler, WARNING
 
 from Dto.MessageDto import MessageDto
 from Forms.CreateMessageForm import CreateMessageForm
@@ -27,7 +28,9 @@ Bootstrap4(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-
+file_handler = FileHandler("instance/errorlog.txt")
+file_handler.setLevel(WARNING)
+app.logger.addHandler(file_handler)
 
 @login_manager.user_loader
 def load_user(user_id):
