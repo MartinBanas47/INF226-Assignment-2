@@ -4,6 +4,7 @@ import bcrypt
 from flask import Flask, render_template, redirect, url_for, abort
 from flask_bootstrap import Bootstrap4
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from sqlalchemy.exc import IntegrityError
 
 from Dto.MessageDto import MessageDto
 from Forms.CreateMessageForm import CreateMessageForm
@@ -12,6 +13,7 @@ from Forms.RegisterForm import RegisterForm
 from Forms.ReplyForm import CreateReplyForm
 from models import User, Message, Participant
 from models import db
+from Repository import UserRepository, MessageRepository
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -40,7 +42,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        user = UserRepository.get_user_by_username(form.username.data)
         if user:
             checking_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), user.salt)
             if checking_password == user.password:
@@ -58,12 +60,15 @@ def register():
     if form.validate_on_submit():
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), salt)
-        new_user = User(username=form.username.data, password=hashed_password, salt=salt)
-        db.session.add(new_user)
-        db.session.commit()
-        user = User.query.filter_by(username=form.username.data).first()
-        if user:
-            return redirect(url_for('login'))
+        try:
+            UserRepository.create_user(db.session, form.username.data, hashed_password, salt)
+            db.session.commit()
+        except IntegrityError as e:
+            if "UNIQUE constraint failed: User.username" in e.args[0]:
+                return render_template('register.html', form=form,
+                                       error_message='Username is already used')
+            return render_template('register.html', form=form, error_mesage="Something went wrong")
+        return redirect(url_for('login'))
 
     return render_template('register.html', form=form)
 
@@ -76,7 +81,6 @@ def createMessage():
         try:
             if (';' in form.receiver.data):
                 receivers = form.receiver.data.split(';')
-
                 try:
 
                         new_message = Message(message=form.message.data,
