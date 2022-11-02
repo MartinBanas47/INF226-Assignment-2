@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import bcrypt
 from flask import Flask, render_template, redirect, url_for, abort
@@ -13,7 +14,8 @@ from Forms.RegisterForm import RegisterForm
 from Forms.ReplyForm import CreateReplyForm
 from models import User, Message, Participant
 from models import db
-from Repository import UserRepository, MessageRepository
+from Repository import UserRepository, MessageRepository, ParticipantRepository
+from Utility import ValidationCheck
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -40,8 +42,13 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.is_submitted():
 
-    if form.validate_on_submit():
+        if not ValidationCheck.username_valid(form.username.data):
+            return render_template('login.html', form=form, mess='Username can contain only alphanumeric characters')
+        if not ValidationCheck.password_valid(form.password.data):
+            return render_template('login.html', form=form, mess='Password can not contain whitespaces')
+
         user = UserRepository.get_user_by_username(form.username.data)
         if user:
             checking_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), user.salt)
@@ -57,7 +64,15 @@ def login():
 def register():
     form = RegisterForm()
 
-    if form.validate_on_submit():
+    if form.is_submitted():
+
+        if not ValidationCheck.username_valid(form.username.data):
+            return render_template('register.html', form=form,
+                                   error_message='Username can contain only alphanumeric characters')
+        if not ValidationCheck.password_valid(form.password.data):
+            return render_template('register.html', form=form,
+                                   error_message='Password can not contain whitespaces')
+
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), salt)
         try:
@@ -78,42 +93,18 @@ def register():
 def createMessage():
     form = CreateMessageForm()
     if form.is_submitted():
-        try:
-            if (';' in form.receiver.data):
-                receivers = form.receiver.data.split(';')
-                try:
+        if not ValidationCheck.username_group_valid(form.receiver.data):
+            return render_template('createMessage.html', form=form,
+                                   error_message='Username can contain only alphanumeric characters')
 
-                        new_message = Message(message=form.message.data,
-                                              date=datetime.date.today())
-                        db.session.add(new_message)
-                        db.session.flush()
-                        for x in receivers:
-                            receiver = User.query.filter_by(username=x).first()
-                            new_participants = Participant(senderId=current_user.id,
-                                                       receiverId=receiver.id,
-                                                       messageId=new_message.id)
-                            db.session.add(new_participants)
-                            db.session.commit()
-
-                except AttributeError:
-                                pass
-                return render_template('createMessage.html', form=CreateMessageForm(formdata=None),
-                                       error_messsage='Message was sent')
-            else:
-                receiver = User.query.filter_by(username=form.receiver.data).first()
-                new_message = Message(message=form.message.data,
-                                      date=datetime.date.today())
-                db.session.add(new_message)
-                db.session.flush()
-                new_participants = Participant(senderId=current_user.id,
-                                               receiverId=receiver.id,
-                                               messageId=new_message.id)
-                db.session.add(new_participants)
-                db.session.commit()
-                return render_template('createMessage.html', form=CreateMessageForm(formdata=None),
-                                       error_messsage='Message was sent')
-        except AttributeError:
-            return render_template('createMessage.html', form=form, error_messsage='Something went wrong')
+        receivers = form.receiver.data.split(';')
+        new_message = MessageRepository.create_message(db.session, form.message.data)
+        for receiver in receivers:
+            new_receiver = UserRepository.get_user_by_username(receiver)
+            ParticipantRepository.add_participant(db.session, current_user.id, new_receiver.id, new_message.id)
+        db.session.commit()
+        return render_template('createMessage.html', form=CreateMessageForm(formdata=None),
+                               error_message='Message was sent')
     return render_template('createMessage.html', form=form)
 
 
@@ -121,10 +112,7 @@ def createMessage():
 @login_required
 def messages():
     try:
-        messages_db = Participant.query.filter_by(
-            receiverId=current_user.id) \
-            .join(Message, Participant.messageId == Message.id).join(User, User.id == Participant.senderId)\
-            .add_columns(Participant.receiverId,User.username,Message.id, Message.message, Message.date).all()
+        messages_db = MessageRepository.get_messages_for_user(current_user.id)
         messages_list = []
         for message in messages_db:
             messages_list.append(MessageDto(
@@ -136,9 +124,7 @@ def messages():
 
         return render_template('messages.html', messageexists=True, messages=messages_list, len=len(messages_list))
     except AttributeError:
-         return render_template('messages.html', messageexists=False)
-
-
+        return render_template('messages.html', messageexists=False)
 
 
 @app.route('/message/<int:message_id>', methods=['GET', 'POST'])
@@ -146,7 +132,8 @@ def messages():
 def message(message_id):
     form = CreateReplyForm()
     message_db = Message.query.filter_by(id=message_id).join(Participant, Participant.messageId == Message.id).join(
-        User, User.id == Participant.senderId).add_columns(Participant.receiverId,Participant.senderId,User.username,Message.id, Message.message, Message.date).first()
+        User, User.id == Participant.senderId).add_columns(Participant.receiverId, Participant.senderId, User.username,
+                                                           Message.id, Message.message, Message.date).first()
     print(message_db)
 
     if (message_db.receiverId != current_user.id) and (message_db.senderId != current_user.id):
@@ -160,31 +147,31 @@ def message(message_id):
 
     if form.is_submitted():
         try:
-                new_message = Message(message=form.message.data,
-                                      date=datetime.date.today(),
-                                      replyToId=message_id
-                                      )
-                db.session.add(new_message)
-                db.session.flush()
-                group_query = Participant.query.filter_by(messageId=message_id).filter(
-                    Participant.senderId != current_user.id).add_columns(Participant.receiverId, Participant.senderId).all()
-                sender_id = None
-                for x in group_query:
-                    if x.senderId != current_user.id:
-                        sender_id = x.senderId
-                    if x.receiverId != current_user.id:
-                        new_participants = Participant(senderId=current_user.id,
+            new_message = Message(message=form.message.data,
+                                  date=datetime.date.today(),
+                                  replyToId=message_id
+                                  )
+            db.session.add(new_message)
+            db.session.flush()
+            group_query = Participant.query.filter_by(messageId=message_id).filter(
+                Participant.senderId != current_user.id).add_columns(Participant.receiverId, Participant.senderId).all()
+            sender_id = None
+            for x in group_query:
+                if x.senderId != current_user.id:
+                    sender_id = x.senderId
+                if x.receiverId != current_user.id:
+                    new_participants = Participant(senderId=current_user.id,
                                                    receiverId=x.receiverId,
                                                    messageId=new_message.id)
-                        db.session.add(new_participants)
-                        db.session.flush()
-                new_participants = Participant(senderId=current_user.id,
-                                               receiverId=sender_id,
-                                               messageId=new_message.id)
-                db.session.add(new_participants)
-                db.session.flush()
-                db.session.commit()
-                return redirect(url_for('messages'))
+                    db.session.add(new_participants)
+                    db.session.flush()
+            new_participants = Participant(senderId=current_user.id,
+                                           receiverId=sender_id,
+                                           messageId=new_message.id)
+            db.session.add(new_participants)
+            db.session.flush()
+            db.session.commit()
+            return redirect(url_for('messages'))
         except AttributeError:
             return render_template('message.html', meessage=message, form=form, error_messsage='Something went wrong')
 
