@@ -11,4 +11,4 @@ def username_group_valid(username: string) -> bool:
 
 
 def password_valid(password: string) -> bool:
-    return re.match("\S{4,20}", password) is not None
+    return re.match("(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9]).{7,20}", password) is not None

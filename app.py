@@ -51,7 +51,9 @@ def login():
         if not ValidationCheck.username_valid(form.username.data):
             return render_template('login.html', form=form, mess='Username can contain only alphanumeric characters')
         if not ValidationCheck.password_valid(form.password.data):
-            return render_template('login.html', form=form, mess='Password can not contain whitespaces')
+            return render_template('login.html', form=form, mess='Password has to contain'
+                                                                 ' 1 upper case character,'
+                                                                 ' 1 number and 1 special character')
 
         user = UserRepository.get_user_by_username(form.username.data)
         if user:
@@ -75,7 +77,8 @@ def register():
                                    error_message='Username can contain only alphanumeric characters')
         if not ValidationCheck.password_valid(form.password.data):
             return render_template('register.html', form=form,
-                                   error_message='Password can not contain whitespaces')
+                                   error_message='Password has to contain'
+                                                 ' 1 upper case character, 1 number and 1 special characters')
 
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(bytes(form.password.data, 'utf-8'), salt)
