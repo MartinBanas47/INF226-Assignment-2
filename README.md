@@ -2,8 +2,8 @@
 # Oblig 2A:
 
 ## Refactor and improve the code – see the Secure by Design book for tips, document your choices in README.md
-Considering the state of the app and purpose of what we should do, we decided to write the app from the scratch. We found it better to learn by creating a new app rather than refactoring the new app and potentionally missing an important functionality of the application. However, we decided to move a lot of the code into seperated folders, such as templates, DTOs and forms. This should improve readibility of the application.
-TODOOOOOOO
+Considering the state of the app and purpose of what we should do, we decided to write the app from the scratch. We found it better to learn by creating a new app rather than refactoring the existing app and potentionally missing an important functionality of the application. However, we decided to move a lot of the code into seperated folders, such as templates, DTOs and forms. This should improve readibility of the application. We used a database to persist information such as authentication data and application data.
+
 
 
 
@@ -22,8 +22,11 @@ Here are the pages of the application with brief description:
 
 * 'Message page' shows detail of the message. 
 
-* 'Reply page'
-TODOOOOOOOOOO
+* 'Reply' is a feature that is possible while user is looking at the message page, user can response to the received message, if the message was sent to more participants, response will be send to every original receiver and to previous sender. 
+
+* 'Create a message' page, user can send a message to one or more recipients with his message.
+
+* 'Log out' button, will log out the current signed in user and will end his session. 
 
 
 ## Instructions on how to test/demo it
@@ -35,11 +38,13 @@ TODOOOOOOOOOO
 
 * Register test users, because database will be empty after first run. (It creates itself if it does not exist)
 
-* Create messages.
+* Create messages. For more recipients, use seperator ';' between their names, e.g user1;user2 
 
 
 ## Technical details on the implementation
 * ORM framework: SQLAlchemy
+
+* The database used to persist information: SQLite
 
 * The framework used to run the app: Flask
 
