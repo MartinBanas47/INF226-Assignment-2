@@ -66,29 +66,29 @@ Here are the pages of the application with brief description:
 
 ## Threat model – who might attack the application? What can an attacker do? What damage could be done (in terms of confidentiality, integrity, availability)? Are there limits to what an attacker can do? Are there limits to what we can sensibly protect against?
 
-##Who might attack the application?
+### Who might attack the application?
 * Person who wants to get information from messages inside of the application
 * Person who wants to send false information to other user
 * Person who wants to benefit from application not working
 * Person who wants to get personal information about users
 * Person who would get any type of profit from the attack
 
-## What can an attacker do?
+### What can an attacker do?
 * He can gain access to other users accounts and/or messeges
 * He can send messeges as if they were from someone else
 * He can shut down the app
 * He can gain access to personal information about users
 
-## What damage could be done (in terms of confidentiality, integrity, availability)?
+### What damage could be done (in terms of confidentiality, integrity, availability)?
 * Messages could be leaked
 * Personal information could be leaked
 * Website could lose users and profit
 * People may get incorrect information which would affect their lives
 
-## Are there limits to what an attacker can do?
+### Are there limits to what an attacker can do?
 * We do not have much information about our users, so he can just get information from messages, steal someones account, delete users and messages or shut down the app.
 
-## Are there limits to what we can sensibly protect against?
+### Are there limits to what we can sensibly protect against?
 * We can protect the app from most of the well known attacks which may be also discoved by tools such as SonarQube or OWASP ZAP
 
 ## What are the main attack vectors for the application?
