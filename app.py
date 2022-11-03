@@ -1,5 +1,4 @@
 import datetime
-import re
 
 import bcrypt
 from flask import Flask, render_template, redirect, url_for, abort
@@ -21,6 +20,7 @@ from Utility import ValidationCheck
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = '123456789'
+app.config['SESSION_COOKIE_SAMESITE'] = "Strict"
 app.app_context().push()
 db.init_app(app)
 db.create_all()
@@ -93,7 +93,7 @@ def register():
 
 @app.route('/new', methods=['GET', 'POST'])
 @login_required
-def createMessage():
+def create_message():
     form = CreateMessageForm()
     if form.is_submitted():
         if not ValidationCheck.username_group_valid(form.receiver.data):
@@ -104,6 +104,8 @@ def createMessage():
         new_message = MessageRepository.create_message(db.session, form.message.data)
         for receiver in receivers:
             new_receiver = UserRepository.get_user_by_username(receiver)
+            if new_receiver is None:
+                return render_template('createMessage.html', form=form, error_message='Non existing user included')
             ParticipantRepository.add_participant(db.session, current_user.id, new_receiver.id, new_message.id)
         db.session.commit()
         return render_template('createMessage.html', form=CreateMessageForm(formdata=None),
