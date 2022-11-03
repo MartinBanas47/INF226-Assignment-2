@@ -22,6 +22,16 @@ class Message(db.Model):
     __tablename__ = "Message"
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(200), nullable=True)
-    sender = db.Column(db.Integer, ForeignKey("User.id"))
-    receiver = db.Column(db.Integer, ForeignKey("User.id"))
     date = db.Column(db.Date)
+    replyToId = db.Column(db.Integer, db.ForeignKey("Message.id"), nullable=True)
+
+
+'''Table for receivers and senders'''
+
+
+class Participant(db.Model):
+    __tablename__ = "Participant"
+    id = db.Column(db.Integer, primary_key=True)
+    senderId = db.Column(db.Integer, ForeignKey("User.id"))
+    receiverId = db.Column(db.Integer, ForeignKey("User.id"))
+    messageId = db.Column(db.Integer, ForeignKey("Message.id"))
