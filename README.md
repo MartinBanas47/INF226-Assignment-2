@@ -85,5 +85,5 @@ Access control is a security technique that regulates who or what can view or us
 
 ## How can you know that you security is good enough? (traceability)
 
-We can check security of the app using penetration testing. Having done penetration testing before and after every major release, we can reduce number of security vulnerabilities. Make tests on critical parts of the code, where we can except some kind of injection or another type of the threat. Traceability also helps when vulnerability is found, because it helps us reduce amount of code in which is the problem of the application. It can also prevent developers from making the same mistake over and over by having them check previous mistakes and have them in mind when creating new features or fixing bugs.
-TODOOOOO
+We can check security of the app using penetration testing. Having done penetration testing before and after every major release, we can reduce number of security vulnerabilities. Make tests on critical parts of the code, where we can except some kind of injection or another type of the threat. Traceability also helps when vulnerability is found, because it helps us reduce amount of code in which is the problem of the application. It can also prevent developers from making the same mistake over and over by having them check previous mistakes and have them in mind when creating new features or fixing bugs. In the end we tried to secure the application as much as we could based on a resource and time factor.
+
