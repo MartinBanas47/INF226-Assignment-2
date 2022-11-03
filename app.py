@@ -1,5 +1,3 @@
-import datetime
-
 import bcrypt
 from flask import Flask, render_template, redirect, url_for, abort
 from flask_bootstrap import Bootstrap4
@@ -13,7 +11,7 @@ from Forms.CreateMessageForm import CreateMessageForm
 from Forms.LoginForm import LoginForm
 from Forms.RegisterForm import RegisterForm
 from Forms.ReplyForm import CreateReplyForm
-from models import User, Message, Participant
+from models import User
 from models import db
 from Repository import UserRepository, MessageRepository, ParticipantRepository
 from Utility import ValidationCheck
@@ -33,6 +31,7 @@ login_manager.login_view = 'login'
 file_handler = FileHandler("instance/errorlog.txt")
 file_handler.setLevel(WARNING)
 app.logger.addHandler(file_handler)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -153,16 +152,15 @@ def message(message_id):
     if is_reply:
         reply_message = MessageRepository.get_message_with_participants(message_db.replyToId, current_user.id)
         reply_message = MessageDto(
-        message_id=reply_message.id,
-        sender_username=reply_message.username,
-        timestamp=reply_message.date,
-        message=reply_message.message
-    )
-
+            message_id=reply_message.id,
+            sender_username=reply_message.username,
+            timestamp=reply_message.date,
+            message=reply_message.message
+        )
 
     if form.is_submitted():
         try:
-            new_message = MessageRepository.create_message(db.session,form.message.data, message_id)
+            new_message = MessageRepository.create_message(db.session, form.message.data, message_id)
             group_query = ParticipantRepository.get_message_participants(message_id, current_user.id)
             sender_id = None
             for participant in group_query:
