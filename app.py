@@ -136,12 +136,12 @@ def messages():
 @login_required
 def message(message_id):
     form = CreateReplyForm()
-    message_db = Message.query.filter_by(id=message_id).join(Participant, Participant.messageId == Message.id).join(
+    message_db = Message.query.filter_by(id=message_id).join(Participant, Participant.messageId == Message.id)\
+        .filter_by(receiverId=current_user.id).join(
         User, User.id == Participant.senderId).add_columns(Participant.receiverId, Participant.senderId, User.username,
                                                            Message.id, Message.message, Message.date).first()
-    print(message_db)
 
-    if (message_db.receiverId != current_user.id) and (message_db.senderId != current_user.id):
+    if message_db.receiverId != current_user.id:
         abort(404)
     message = MessageDto(
         message_id=message_db.id,
@@ -191,4 +191,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
