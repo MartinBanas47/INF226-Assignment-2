@@ -138,12 +138,8 @@ def messages():
 @login_required
 def message(message_id):
     form = CreateReplyForm()
-    message_db = Message.query.filter_by(id=message_id).join(Participant, Participant.messageId == Message.id)\
-        .filter_by(receiverId=current_user.id).join(
-        User, User.id == Participant.senderId).add_columns(Participant.receiverId, Participant.senderId, User.username,
-                                                           Message.id, Message.message, Message.date).first()
-
-    if message_db.receiverId != current_user.id:
+    message_db = MessageRepository.get_message_with_participants(message_id, current_user.id)
+    if message_db is None:
         abort(404)
     message = MessageDto(
         message_id=message_db.id,
@@ -152,37 +148,37 @@ def message(message_id):
         message=message_db.message
     )
 
+    is_reply = message_db.replyToId is not None
+    reply_message = None
+    if is_reply:
+        reply_message = MessageRepository.get_message_with_participants(message_db.replyToId, current_user.id)
+        reply_message = MessageDto(
+        message_id=reply_message.id,
+        sender_username=reply_message.username,
+        timestamp=reply_message.date,
+        message=reply_message.message
+    )
+
+
     if form.is_submitted():
         try:
-            new_message = Message(message=form.message.data,
-                                  date=datetime.date.today(),
-                                  replyToId=message_id
-                                  )
-            db.session.add(new_message)
-            db.session.flush()
-            group_query = Participant.query.filter_by(messageId=message_id).filter(
-                Participant.senderId != current_user.id).add_columns(Participant.receiverId, Participant.senderId).all()
+            new_message = MessageRepository.create_message(db.session,form.message.data, message_id)
+            group_query = ParticipantRepository.get_message_participants(message_id, current_user.id)
             sender_id = None
-            for x in group_query:
-                if x.senderId != current_user.id:
-                    sender_id = x.senderId
-                if x.receiverId != current_user.id:
-                    new_participants = Participant(senderId=current_user.id,
-                                                   receiverId=x.receiverId,
-                                                   messageId=new_message.id)
-                    db.session.add(new_participants)
-                    db.session.flush()
-            new_participants = Participant(senderId=current_user.id,
-                                           receiverId=sender_id,
-                                           messageId=new_message.id)
-            db.session.add(new_participants)
-            db.session.flush()
+            for participant in group_query:
+                if participant.senderId != current_user.id:
+                    sender_id = participant.senderId
+                if participant.receiverId != current_user.id:
+                    ParticipantRepository.add_participant(db.session, current_user.id,
+                                                          participant.receiverId, new_message.id)
+            ParticipantRepository.add_participant(db.session, current_user.id, sender_id, new_message.id)
             db.session.commit()
             return redirect(url_for('messages'))
         except AttributeError:
-            return render_template('message.html', meessage=message, form=form, error_messsage='Something went wrong')
+            return render_template('message.html', meessage=message, form=form, error_messsage='Something went wrong',
+                                   is_reply=is_reply, reply_message=reply_message)
 
-    return render_template('message.html', message=message, form=form)
+    return render_template('message.html', message=message, form=form, is_reply=is_reply, reply_message=reply_message)
 
 
 @app.route('/logout')
