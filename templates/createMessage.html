@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 align="center">Create message</h2>
+<h2 align="center" style="padding-top: 20px">Create message</h2>
 <div class="container">
     <form method="POST" action="/new">
         {{ form.hidden_tag() }}
         {{ form.receiver.label(class="form-label") }}
         {{ form.receiver(class="form-control") }}
+        <p align="center">To send a group message, use ';' as a delimiter between user names in Receiver field</p>
         {{ form.message.label(class="form-label") }}
         {{ form.message(class="form-control") }}
         <br>
