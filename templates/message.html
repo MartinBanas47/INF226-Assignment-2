@@ -2,7 +2,7 @@
 {% block content %}
 <div class="container ">
     {% if is_reply %}
-    <h2 align="center">This message replied to:</h2>
+    <h4 align="center" style="padding-top: 20px">Previous message:</h4>
     <div class="card">
         <h5 class="card-header">
             <a href="./{{reply_message.message_id}}">Detail</a>
@@ -15,7 +15,7 @@
     </div>
     <br>
     {%endif%}
-    <h2 align="center">Message detail:</h2>
+    <h4 align="center">Message detail:</h4>
     <div class="card">
         <h5 class="card-header">
             <small style=" position: absolute; left: 50%; margin-left: -1em">{{message.sender_username}}</small>
