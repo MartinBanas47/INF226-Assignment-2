@@ -11,5 +11,5 @@ class RegisterForm(FlaskForm):
                                                            message="Password has to contain"
                                                                    " 1 upper case character,"
                                                                    "1 number and 1 special character"),
-                                         InputRequired(), Length(min=7, max=80),
+                                         InputRequired(), Length(min=7, max=20),
                                          ])
