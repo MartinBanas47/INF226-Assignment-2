@@ -6,6 +6,7 @@ from flask_bootstrap import Bootstrap4
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy.exc import IntegrityError
 from logging import FileHandler, WARNING
+from flask_wtf.csrf import CSRFProtect
 
 from Dto.MessageDto import MessageDto
 from Forms.CreateMessageForm import CreateMessageForm
@@ -18,6 +19,7 @@ from Repository import UserRepository, MessageRepository, ParticipantRepository
 from Utility import ValidationCheck
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = '123456789'
 app.config['SESSION_COOKIE_SAMESITE'] = "Strict"
