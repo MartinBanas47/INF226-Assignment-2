@@ -3,6 +3,7 @@
 <h2 align="center">Create message</h2>
 <div class="container">
     <form method="POST" action="/new">
+        {{ form.hidden_tag() }}
         {{ form.receiver.label(class="form-label") }}
         {{ form.receiver(class="form-control") }}
         {{ form.message.label(class="form-label") }}
