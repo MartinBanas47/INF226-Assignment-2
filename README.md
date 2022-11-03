@@ -80,7 +80,8 @@ In cybersecurity, an attack vector is a method of achieving unauthorized network
 
 
 ## What is the access control model?
-Access control is a security technique that regulates who or what can view or use resources in a computing environment and do specific functionality of the application. It is a fundamental concept in security that minimizes risk to the business or organization. Access control model is a way how to represent priviledges and hierarchy of user inside of the application. In our case we have implemented model which gives controls only to the owner and it would be possible to extend it for users that would be moderating or editing content of the website for example. This means the end user has no control over any settings that provide any privileges to anyone. And can use just bussiness functionality of the application. 
+
+Access control is a security technique that regulates who or what can view or use resources in a computing environment and do specific functionality of the application. It is a fundamental concept in security that minimizes risk to the business or organization. Access control model is a way how to represent priviledges and hierarchy of user inside of the application. In software engineering we know two base models of access control. Role-base access conrol and attribute-based access control. In our application we user attribute-based access control model. In this model "subject requests to perform operations on objects are granted or denied based on assigned attributes(relations) of the subject. For example user can see messages in which was stated as a reciepient, no other messages.
 
 ## How can you know that you security is good enough? (traceability)
 
