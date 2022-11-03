@@ -71,7 +71,12 @@ TODO -> mozem skopirovat https://www.upguard.com/blog/attack-vector
 In cybersecurity, an attack vector is a method of achieving unauthorized network access to launch a cyber attack. Attack vectors allow atackers to exploit system vulnerabilities to gain access to sensitive data, personally identifiable information, and other valuable information accessible after a data breach. For the main attack vectors for the application we consider weak credentials, any forms of injections, SQL injections, cross-site scripting, session hicjacking, distributed denial of service(DDoS), brute force, missing or poor encryption.
 
 ## What should we do (or what have you done) to protect against attacks?
-TODO -> zalezi ake vypiseme
+* SQL injection or other injection - We used ORM, which is design not only to make queries easier to write, but also to prevent SQL injection.
+* XSS - We used Flask forms, which use Jinja2 to escape text and should prevent these attacks.
+* Man in the middle attack/encryption - would be solved by HTTPS, but we did not want to pay for SSL certificate
+* DDoS - Would be solved by server/cloud configuration.
+* Session hijacking - Solved by SameSite attribute set as strict in cookie.
+* CSRF - Used Flask's CSRF protection package
 
 
 ## What is the access control model?
