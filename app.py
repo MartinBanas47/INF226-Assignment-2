@@ -172,18 +172,12 @@ def message(message_id):
         try:
             new_message = MessageRepository.create_message(db.session, form.message.data, message_id)
             group_query = ParticipantRepository.get_message_participants(message_id, current_user.id)
-            sender_id = None
-            for participant in group_query:
-                if participant.senderId != current_user.id:
-                    sender_id = participant.senderId
-                if participant.receiverId != current_user.id:
-                    ParticipantRepository.add_participant(db.session, current_user.id,
-                                                          participant.receiverId, new_message.id)
-            ParticipantRepository.add_participant(db.session, current_user.id, sender_id, new_message.id)
+            if group_query is not None:
+                ParticipantRepository.add_participant(db.session, current_user.id, group_query[0].senderId, new_message.id)
             db.session.commit()
             return redirect(url_for('messages'))
         except AttributeError:
-            return render_template('message.html', meessage=message, form=form, error_messsage='Something went wrong',
+            return render_template('message.html', meessage=form.message, form=form, error_messsage='Something went wrong',
                                    is_reply=is_reply, reply_message=reply_message)
 
     return render_template('message.html', message=message, form=form, is_reply=is_reply, reply_message=reply_message)
