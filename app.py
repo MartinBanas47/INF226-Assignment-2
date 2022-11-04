@@ -23,6 +23,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+@app.after_request
+def add_header(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['Content-Security-Policy'] = "default-src 'self' https://cdn.jsdelivr.net " \
+                                                  "https://code.jquery.com http://www.w3.org data:image/svg+xml"
+    return response
 
 @login_manager.user_loader
 def load_user(user_id):
