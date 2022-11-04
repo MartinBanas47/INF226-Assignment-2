@@ -173,7 +173,7 @@ def message(message_id):
             new_message = MessageRepository.create_message(db.session, form.message.data, message_id)
             group_query = ParticipantRepository.get_message_participants(message_id, current_user.id)
             if group_query is not None:
-                ParticipantRepository.add_participant(db.session, current_user.id, group_query[0].senderId, new_message.id)
+                ParticipantRepository.add_participant(db.session, current_user.id, group_query.senderId, new_message.id)
             db.session.commit()
             return redirect(url_for('messages'))
         except AttributeError:
