@@ -1,15 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 align="center">Message</h2>
-<div class="container">
+<div class="container ">
+    {% if is_reply %}
+    <h4 align="center" style="padding-top: 20px">Previous message:</h4>
     <div class="card">
         <h5 class="card-header">
-            {{message.message_id}}. <small style=" position: absolute; left: 50%; margin-left: -1em">{{message.sender_username}}</small>
+            <a href="./{{reply_message.message_id}}">Detail</a>
+            <small style=" position: absolute; left: 50%; margin-left: -1em">{{reply_message.sender_username}}</small>
+            <small class="float-right">{{reply_message.timestamp}}</small>
+        </h5>
+        <div class="card-body">
+            {{reply_message.message}}
+        </div>
+    </div>
+    <br>
+    {%endif%}
+    <h4 align="center">Message detail:</h4>
+    <div class="card">
+        <h5 class="card-header">
+            <small style=" position: absolute; left: 50%; margin-left: -1em">{{message.sender_username}}</small>
             <small class="float-right">{{message.timestamp}}</small>
         </h5>
         <div class="card-body">
             {{message.message}}
         </div>
     </div>
+    <form method="POST">
+        <div style="padding-top: 25%">
+            <h5 align="center">Reply will be sent only to user who created message</h5>
+            {{ form.hidden_tag() }}
+            {{ form.message(class="form-control") }}
+            <button type="submit" class="btn btn-dark btn-block mb-4">Reply</button>
+            <p align="center">{{ error_messsage }}</p>
+        </div>
+    </form>
 </div>
 {% endblock %}
